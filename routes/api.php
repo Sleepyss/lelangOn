@@ -70,6 +70,7 @@ Route::group(['middleware' => ['jwt.verify:petugas']], function()
 
     Route::post('transaksi/store',[TransaksiController::class,'store']);
     Route::get('transaksi',[TransaksiController::class,'index']);
+    Route::get('masyarakat/{id}',[masyarakatController::class,'show']);
     Route::put('transaksi/update',[TransaksiController::class,'update']);
     Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
 });
@@ -81,12 +82,13 @@ Route::group(['middleware' => ['jwt.verify:admin']], function()
 
     Route::post('petugas/store',[petugasController::class,'store']);
     Route::get('petugas',[petugasController::class,'index']);
+    Route::get('petugas/{id}',[petugasController::class,'show']);
     Route::put('petugas/update',[petugasController::class,'update']);
     Route::delete('petugas/delete',[petugasController::class,'destroy']);
 
     Route::post('masyarakat/store',[masyarakatController::class,'store']);
     Route::get('masyarakat',[masyarakatController::class,'index']);
-    Route::get('masyarakat/{id}',[barangController::class,'show']);
+    Route::get('masyarakat/{id}',[masyarakatController::class,'show']);
     Route::put('masyarakat/update',[masyarakatController::class,'update']);
     Route::delete('masyarakat/delete',[masyarakatController::class,'destroy']);
 });
