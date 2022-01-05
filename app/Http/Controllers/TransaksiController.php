@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TransaksiModel;
+use App\Models\lelangModel;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use JWTAuth;
@@ -64,7 +65,8 @@ class TransaksiController extends Controller
             'id_petugas' => $request -> id_petugas,
             'id_barang' => $request -> id_barang,
             'id_masyarakat' => $request -> id_masyarakat,
-            'hargabarang' => $request -> hargabarang,
+            $lelang = lelangModel::where('id_lelang','=', $request->id_lelang)->first(),
+            'hargabarang' => $lelang -> harga_akhir,
             'tgl_transaksi' => Carbon::now(),
             'pembayaran' => 'belum',
         ]);

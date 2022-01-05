@@ -30,6 +30,7 @@ Route::post('logout',[AuthController::class,'logout']);
 
 Route::post('transaksi/store',[TransaksiController::class,'store']);
 Route::get('transaksi',[TransaksiController::class,'index']);
+Route::get('transaksi/{id}',[TransaksiController::class,'show']);
 Route::put('transaksi/update',[TransaksiController::class,'update']);
 Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
 
@@ -56,6 +57,7 @@ Route::group(['middleware' => ['jwt.verify:masyarakat']], function()
 {
     Route::post('hlelang/store',[HlelangController::class,'store']);
     Route::get('hlelang',[HlelangController::class,'index']);
+    Route::get('hlelang/{id}',[HlelangController::class,'show']);
     Route::put('hlelang/update',[HlelangController::class,'update']);
     Route::delete('hlelang/delete',[HlelangController::class,'destroy']);
 });
@@ -65,12 +67,13 @@ Route::group(['middleware' => ['jwt.verify:petugas']], function()
     //ROUTE KHUSUS PETUGAS
     Route::post('lelang/store',[lelangController::class,'store']);
     Route::get('lelang',[lelangController::class,'index']);
+    Route::get('lelang/{id}',[lelangController::class,'show']);
     Route::put('lelang/update',[lelangController::class,'update']);
     Route::delete('lelang/delete',[lelangController::class,'destroy']);
 
     Route::post('transaksi/store',[TransaksiController::class,'store']);
     Route::get('transaksi',[TransaksiController::class,'index']);
-    Route::get('masyarakat/{id}',[masyarakatController::class,'show']);
+    Route::get('transaksi/{id}',[TransaksiController::class,'show']);
     Route::put('transaksi/update',[TransaksiController::class,'update']);
     Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
 });
