@@ -15,6 +15,7 @@ class CreateTransaksiTable extends Migration
     {
         Schema::create('transaksi', function (Blueprint $table) {
             $table->id('id_transaksi');
+            $table->unsignedBigInteger('id_lelang');
             $table->unsignedBigInteger('id_petugas');
             $table->unsignedBigInteger('id_barang');
             $table->unsignedBigInteger('id_masyarakat');
@@ -22,6 +23,7 @@ class CreateTransaksiTable extends Migration
             $table->date('tgl_transaksi');
             $table->enum('pembayaran',['sudah','belum']);
 
+            $table->foreign('id_lelang')->references('id_lelang')->on('lelang');
             $table->foreign('id_barang')->references('id_barang')->on('barang');
             $table->foreign('id_petugas')->references('id_petugas')->on('petugas');
             $table->foreign('id_masyarakat')->references('id_masyarakat')->on('masyarakat');

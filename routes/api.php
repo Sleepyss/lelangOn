@@ -9,6 +9,7 @@ use App\Http\Controllers\petugasController;
 use App\Http\Controllers\barangController;
 use App\Http\Controllers\lelangController;
 use App\Http\Controllers\HlelangController;
+use App\Http\Controllers\TransaksiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,11 +35,18 @@ Route::get('transaksi/{id}',[TransaksiController::class,'show']);
 Route::put('transaksi/update',[TransaksiController::class,'update']);
 Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
 
-
 Route::group(['middleware' => ['jwt.verify:admin,masyarakat']], function()
 {
     //ROUTE KHUSUS ADMIN DAN MASYARAKAT
     Route::post('user/add',[userController::class,'store']);
+
+    /* List user, password & level
+
+    admin   adminadmin  admin
+    npc     npcnpc      masyarakat
+    worker  workerworker petugas
+
+    */
 });
 
 Route::group(['middleware' => ['jwt.verify:admin,petugas']], function()
@@ -55,6 +63,7 @@ Route::group(['middleware' => ['jwt.verify:admin,petugas']], function()
 
 Route::group(['middleware' => ['jwt.verify:masyarakat']], function()
 {
+    //ROUTE KHUSUS MASYARAKAT
     Route::post('hlelang/store',[HlelangController::class,'store']);
     Route::get('hlelang',[HlelangController::class,'index']);
     Route::get('hlelang/{id}',[HlelangController::class,'show']);
@@ -71,11 +80,11 @@ Route::group(['middleware' => ['jwt.verify:petugas']], function()
     Route::put('lelang/update',[lelangController::class,'update']);
     Route::delete('lelang/delete',[lelangController::class,'destroy']);
 
-    Route::post('transaksi/store',[TransaksiController::class,'store']);
+    /*Route::post('transaksi/store',[TransaksiController::class,'store']);
     Route::get('transaksi',[TransaksiController::class,'index']);
     Route::get('transaksi/{id}',[TransaksiController::class,'show']);
     Route::put('transaksi/update',[TransaksiController::class,'update']);
-    Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
+    Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);*/
 });
 
 Route::group(['middleware' => ['jwt.verify:admin']], function()

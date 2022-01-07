@@ -48,10 +48,10 @@ class TransaksiController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(),[
+            'id_lelang' => 'required',
             'id_petugas' => 'required',
             'id_barang' => 'required',
             'id_masyarakat' => 'required',
-            'hargabarang' => 'required',
             
         ]);
         
@@ -62,6 +62,7 @@ class TransaksiController extends Controller
         }
 
         $create=TransaksiModel::create([
+            'id_lelang' => $request -> id_lelang,
             'id_petugas' => $request -> id_petugas,
             'id_barang' => $request -> id_barang,
             'id_masyarakat' => $request -> id_masyarakat,
@@ -114,6 +115,7 @@ class TransaksiController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(),[
+            'id_lelang' => 'required',
             'id_petugas' => 'required',
             'id_barang' => 'required',
             'id_masyarakat' => 'required',
@@ -129,6 +131,7 @@ class TransaksiController extends Controller
         }
 
         $update=TransaksiModel::where('id',$id)->update([
+            'id_lelang' => $request -> id_lelang,
             'id_petugas' => $request -> id_petugas,
             'id_barang' => $request -> id_barang,
             'id_masyarakat' => $request -> id_masyarakat,
