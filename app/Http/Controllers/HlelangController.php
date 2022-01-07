@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\hlelangModel;
+use App\Models\lelangModel;
 use Illuminate\Support\Facades\Validator;
 
 class HlelangController extends Controller
@@ -38,11 +39,11 @@ class HlelangController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(),[
-            'id_petugas' => 'required',
+            'id_lelang' => 'required',
             'id_barang' => 'required',
             'id_masyarakat' => 'required',
             'penawaran_harga' => 'required',
-        ]);
+        ]); 
         
         if($validator->fails()){
             $data['status']=false;
@@ -51,7 +52,7 @@ class HlelangController extends Controller
         }
 
         $create=hlelangModel::create([
-            'id_petugas' => $request -> id_petugas,
+            'id_lelang' => $request -> id_lelang,
             'id_barang' => $request -> id_barang,
             'id_masyarakat' => $request -> id_masyarakat,
             'penawaran_harga' => $request -> penawaran_harga,  
@@ -100,7 +101,7 @@ class HlelangController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(),[
-            'id_petugas' => 'required',
+            'id_lelang' => 'required',
             'id_barang' => 'required',
             'id_masyarakat' => 'required',
             'penawaran_harga' => 'required',
@@ -113,7 +114,7 @@ class HlelangController extends Controller
         }
 
         $update=hlelangModel::where('id',$id)->update([
-            'id_petugas' => $request -> id_petugas,
+            'id_lelang' => $request -> id_lelang,
             'id_barang' => $request -> id_barang,
             'id_masyarakat' => $request -> id_masyarakat,
             'penawaran_harga' => $request -> penawaran_harga,  

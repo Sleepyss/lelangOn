@@ -15,14 +15,14 @@ class CreateHistoryLelangTable extends Migration
     {
         Schema::create('history_lelang', function (Blueprint $table) {
             $table->id('id_history');
-            $table->unsignedBigInteger('id_petugas');
+            $table->unsignedBigInteger('id_lelang');
             $table->unsignedBigInteger('id_barang');
             $table->unsignedBigInteger('id_masyarakat');
             $table->integer('penawaran_harga');
             $table->timestamps();
 
             $table->foreign('id_barang')->references('id_barang')->on('barang');
-            $table->foreign('id_petugas')->references('id_petugas')->on('petugas');
+            $table->foreign('id_lelang')->references('id_lelang')->on('lelang');
             $table->foreign('id_masyarakat')->references('id_masyarakat')->on('masyarakat');
         });
     }

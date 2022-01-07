@@ -42,7 +42,6 @@ class lelangController extends Controller
         $validator = Validator::make($request->all(),[
             'id_barang' => 'required',
             'id_petugas' => 'required',
-            'id_masyarakat' => 'required',
         ]);
         
         if($validator->fails()){
@@ -57,8 +56,7 @@ class lelangController extends Controller
             $barang = barangModel::where('id_barang','=', $request->id_barang)->first(),
             'harga_akhir' => $barang -> harga,
             'id_petugas' => $request -> id_petugas,
-            'status' => 'berlangsung',
-            'id_masyarakat' => $request -> id_masyarakat,  
+            'status' => 'berlangsung',  
         ]);
 
         if($create){
@@ -125,6 +123,34 @@ class lelangController extends Controller
             'id_petugas' => $request -> id_petugas,
             'status' => $request -> status,
             'id_masyarakat' => $request -> id_masyarakat,  
+        ]);
+
+        if($update){
+            $data['status']=true;
+            $data['message']="Sukses";
+        }else{
+            $data['status']=false;
+            $data['message']="  ";
+        }
+        return Response()->json($data);
+    }
+
+    public function pengajuan(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(),[
+            'id_masyarakat' => 'required',
+            'harga_akhir' => 'required',
+        ]);
+        
+        if($validator->fails()){
+            $data['status']=false;
+            $data['message']=$validator->errors();
+            return response()->json($data);
+        }
+
+        $update=lelangModel::where('id',$id)->update([
+            'id_masyarakat' => $request -> id_masyarakat,
+            'harga_akhir' => $request -> harga_akhir,
         ]);
 
         if($update){

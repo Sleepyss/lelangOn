@@ -34,7 +34,6 @@ Route::get('transaksi',[TransaksiController::class,'index']);
 Route::get('transaksi/{id}',[TransaksiController::class,'show']);
 Route::put('transaksi/update',[TransaksiController::class,'update']);
 Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
-
 Route::group(['middleware' => ['jwt.verify:admin,masyarakat']], function()
 {
     //ROUTE KHUSUS ADMIN DAN MASYARAKAT
@@ -47,6 +46,7 @@ Route::group(['middleware' => ['jwt.verify:admin,masyarakat']], function()
     worker  workerworker petugas
 
     */
+    
 });
 
 Route::group(['middleware' => ['jwt.verify:admin,petugas']], function()

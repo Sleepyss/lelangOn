@@ -10,6 +10,6 @@ class hlelangModel extends Model
     protected $table = 'history_lelang';
     protected $primaryKey = 'id_history';
     protected $fillable = [
-        'id_petugas','id_barang','id_masyarakat','penawaran_harga'
+        'id_lelang','id_barang','id_masyarakat','penawaran_harga'
     ];
 }
