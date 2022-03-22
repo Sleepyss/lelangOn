@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\lelangModel;
 use App\Models\barangModel;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use JWTAuth;
 
 class lelangController extends Controller
 {
+    public $users;
+
+    public function _construct()
+    {
+        $this -> users = JWTAuth::parseToken()->authenticate();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,8 +26,14 @@ class lelangController extends Controller
      */
     public function index()
     {
-        $dt = lelangModel::get();
-        return response()->json($dt);
+        $data = DB::table('lelang')
+                ->join('masyarakat','lelang.id_masyarakat','=','masyarakat.id_masyarakat')
+                ->join('barang','lelang.id_barang','=','barang.id_barang')
+                ->join('users','lelang.id_petugas','=','users.id')
+                ->select('lelang.*','masyarakat.nama_masyarakat','barang.nama_barang','users.nama')
+                ->get();
+
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
     /**
@@ -41,7 +56,8 @@ class lelangController extends Controller
     {
         $validator = Validator::make($request->all(),[
             'id_barang' => 'required',
-            'id_petugas' => 'required',
+            'id_masyarakat' => 'required',
+            'harga_akhir' => 'required',
         ]);
         
         if($validator->fails()){
@@ -53,10 +69,10 @@ class lelangController extends Controller
         $create=lelangModel::create([
             'id_barang' => $request -> id_barang,
             'tgl_lelang' => Carbon::now(),
-            $barang = barangModel::where('id_barang','=', $request->id_barang)->first(),
-            'harga_akhir' => $barang -> harga,
+            'harga_akhir' => $request -> harga_akhir,
             'id_petugas' => $request -> id_petugas,
             'status' => 'berlangsung',  
+            'id_masyarakat' => $request -> id_masyarakat
         ]);
 
         if($create){
@@ -66,7 +82,7 @@ class lelangController extends Controller
             $data['status']=false;
             $data['message']="Gagal";
         }
-        return Response()->json($data);
+        return response()->json($data);
     }
 
     /**
@@ -77,8 +93,16 @@ class lelangController extends Controller
      */
     public function show($id)
     {
-        $detail = lelangModel::where('id',$id)->first();
-        return Response()->json($detail);
+        $data = lelangModel::where('id_lelang','=',$id)->first();
+        $data = DB::table('lelang')
+                ->join('masyarakat','lelang.id_masyarakat','=','masyarakat.id_masyarakat')
+                ->join('barang','lelang.id_barang','=','barang.id_barang')
+                ->join('users','lelang.id_petugas','=','users.id')
+                ->select('lelang.*','masyarakat.nama_masyarakat','barang.nama_barang','users.nama')
+                ->where('lelang.id_lelang','=',$id)
+                ->first();
+
+        return response()->json($data);
     }
 
     /**
@@ -171,7 +195,7 @@ class lelangController extends Controller
      */
     public function destroy($id)
     {
-        $delete = lelangModel::where('id',$id)->delete();
+        $delete = lelangModel::where('id_lelang',$id)->delete();
         
         if($delete){
             $data['status']=true;

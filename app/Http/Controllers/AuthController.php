@@ -14,48 +14,68 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->only('name','password');
+        $credentials = $request->only('username','password');
 
         try{
-            if(! $token = JWTAuth::attempt($credentials)){
-                return response()->json(['error' => 'invalid_credentials'], 400);
+            if(!    $token = JWTAuth::attempt($credentials)){
+                return response()->json(['message' => 'Invalid username and password']);
             }
         }catch(JWTException $e)
         {
-            return response()->json(['message' => 'could_not _create_token',500]);
+            return response()->json(['message' => 'Generate Token Failed']);
         }
+        
 
-        $data = [
-            'token' => $token,
-            'user' => JWTAuth::user()
-        ];
+        $user = JWTAuth::user();
 
         return response()->json([
-            'message' => 'Login Sukses',
-            'data' => $data
+            'success' => true,
+            'token' => $token,
+			'user' => $user,
+            'message' => 'Login berhasil',
         ]);
+    }
+
+    public function getUser()
+    {
+        $user = JWTAuth::user();
+        return response()->json($user);
     }
 
     public function loginCheck()
     {
         try
         {
-            if(! $user = JWTAuth::parseToken()->authenticate())
+            if(!$user = JWTAuth::parseToken()->authenticate())
             {
-                return response()->json(['message' => 'Invalid Token']);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid Token'
+                ]);
             }
-        }catch(Tymon\JWTAuth\Exceptions\TokenExpiredException $e)
+        }catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Token Expired'
+            ]);
+        }catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e)
         {
-            return response()->json(['message' => 'Token Expired']);
-        }catch(Tymon\JWTAuth\Exceptions\TokenInvalidException $e)
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid Token'
+            ]);
+        }catch (Tymon\JWTAuth\Exceptions\JWTException $e)
         {
-            return response()->json(['message' => 'Invalid Token']);
-        }catch(Tymon\JWTAuth\Exceptions\JWTException $e)
-        {
-            return response()->json(['message' => 'Token Absent']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Token Absent'
+            ]);
         }
 
-        return response()->json(['message' => 'Authentication Success!']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Success!'
+        ]);
     }
 
     public function logout()

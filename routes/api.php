@@ -26,18 +26,43 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('user/',[userController::class,'index']);
+
+
 Route::post('login',[AuthController::class,'login']);
 Route::post('logout',[AuthController::class,'logout']);
+Route::post('getuser',[AuthController::class,'getUser']);
+Route::get('login/check',[AuthController::class,'loginCheck']);
+
 
 Route::post('transaksi/store',[TransaksiController::class,'store']);
-Route::get('transaksi',[TransaksiController::class,'index']);
-Route::get('transaksi/{id}',[TransaksiController::class,'show']);
+Route::get('transaksi',[TransaksiController::class,'join']);
+Route::get('transaksi/{id}',[TransaksiController::class,'selectjoin']);
 Route::put('transaksi/update',[TransaksiController::class,'update']);
 Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
+
+Route::get('barang',[barangController::class,'index']);
+Route::get('barang/{id}',[barangController::class,'show']);
+
+Route::get('hlelang',[HlelangController::class,'index']);
+Route::get('hlelang/{id}',[HlelangController::class,'show']);
+
+Route::get('masyarakat',[masyarakatController::class,'index']);
+Route::get('masyarakat/{id}',[masyarakatController::class,'show']);
+
+Route::get('lelang',[lelangController::class,'index']);
+Route::get('lelang/{id}',[lelangController::class,'show']);
+
 Route::group(['middleware' => ['jwt.verify:admin,masyarakat']], function()
 {
     //ROUTE KHUSUS ADMIN DAN MASYARAKAT
     Route::post('user/add',[userController::class,'store']);
+
+    Route::post('masyarakat/store',[masyarakatController::class,'store']);
+    Route::put('masyarakat/update',[masyarakatController::class,'update']);
+    Route::delete('masyarakat/delete',[masyarakatController::class,'destroy']);
+
+    
 
     /* List user, password & level
 
@@ -51,22 +76,16 @@ Route::group(['middleware' => ['jwt.verify:admin,masyarakat']], function()
 
 Route::group(['middleware' => ['jwt.verify:admin,petugas']], function()
 {
-    //ROUTE KHUSUS ADMIN DAN PETUGAS
-    Route::get('login/check',[AuthController::class,'loginCheck']);
-    
+    //ROUTE KHUSUS ADMIN DAN PETUGAS    
     Route::post('barang/store',[barangController::class,'store']);
-    Route::get('barang',[barangController::class,'index']);
-    Route::get('barang/{id}',[barangController::class,'show']);
-    Route::put('barang/update',[barangController::class,'update']);
-    Route::delete('barang/delete',[barangController::class,'destroy']);
+    Route::put('barang/update/{id}',[barangController::class,'update']);
+    Route::delete('barang/delete/{id}',[barangController::class,'destroy']);
 });
 
 Route::group(['middleware' => ['jwt.verify:masyarakat']], function()
 {
     //ROUTE KHUSUS MASYARAKAT
     Route::post('hlelang/store',[HlelangController::class,'store']);
-    Route::get('hlelang',[HlelangController::class,'index']);
-    Route::get('hlelang/{id}',[HlelangController::class,'show']);
     Route::put('hlelang/update',[HlelangController::class,'update']);
     Route::delete('hlelang/delete',[HlelangController::class,'destroy']);
 });
@@ -75,32 +94,14 @@ Route::group(['middleware' => ['jwt.verify:petugas']], function()
 {
     //ROUTE KHUSUS PETUGAS
     Route::post('lelang/store',[lelangController::class,'store']);
-    Route::get('lelang',[lelangController::class,'index']);
-    Route::get('lelang/{id}',[lelangController::class,'show']);
-    Route::put('lelang/update',[lelangController::class,'update']);
-    Route::delete('lelang/delete',[lelangController::class,'destroy']);
-
-    /*Route::post('transaksi/store',[TransaksiController::class,'store']);
-    Route::get('transaksi',[TransaksiController::class,'index']);
-    Route::get('transaksi/{id}',[TransaksiController::class,'show']);
-    Route::put('transaksi/update',[TransaksiController::class,'update']);
-    Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);*/
+Route::put('lelang/update/{id}',[lelangController::class,'update']);
+    Route::delete('lelang/delete/{id}',[lelangController::class,'destroy']);
 });
 
 Route::group(['middleware' => ['jwt.verify:admin']], function()
 {
     //ROUTE KHUSUS ADMIN
-    Route::get('index',[userController::class,'show']);
-
-    Route::post('petugas/store',[petugasController::class,'store']);
-    Route::get('petugas',[petugasController::class,'index']);
-    Route::get('petugas/{id}',[petugasController::class,'show']);
-    Route::put('petugas/update',[petugasController::class,'update']);
-    Route::delete('petugas/delete',[petugasController::class,'destroy']);
-
-    Route::post('masyarakat/store',[masyarakatController::class,'store']);
-    Route::get('masyarakat',[masyarakatController::class,'index']);
-    Route::get('masyarakat/{id}',[masyarakatController::class,'show']);
-    Route::put('masyarakat/update',[masyarakatController::class,'update']);
-    Route::delete('masyarakat/delete',[masyarakatController::class,'destroy']);
+    Route::get('user/show/{id}',[userController::class,'show']);
+    Route::put('user/update/{id}',[userController::class,'update']);
+    Route::delete('user/delete/{id}',[userController::class,'destroy']);
 });

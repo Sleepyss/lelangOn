@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\TransaksiModel;
 use App\Models\lelangModel;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use JWTAuth;
 
@@ -29,6 +30,18 @@ class TransaksiController extends Controller
         return response()->json($dt);
     }
 
+    public function join()
+    {
+        $data = DB::table('transaksi')
+        ->join('lelang', 'lelang.id_lelang', '=', 'transaksi.id_lelang')
+        ->join('masyarakat', 'masyarakat.id_masyarakat', '=', 'transaksi.id_masyarakat')
+        ->join('barang', 'barang.id_barang', '=', 'transaksi.id_barang')
+        ->select('transaksi.*', 'lelang.harga_akhir', 'masyarakat.nama_masyarakat', 'barang.nama_barang')
+        ->get();
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -49,9 +62,9 @@ class TransaksiController extends Controller
     {
         $validator = Validator::make($request->all(),[
             'id_lelang' => 'required',
-            'id_petugas' => 'required',
-            'id_barang' => 'required',
             'id_masyarakat' => 'required',
+            'id_barang' => 'required',
+            'id_petugas' => 'required',
             
         ]);
         
@@ -66,8 +79,7 @@ class TransaksiController extends Controller
             'id_petugas' => $request -> id_petugas,
             'id_barang' => $request -> id_barang,
             'id_masyarakat' => $request -> id_masyarakat,
-            $lelang = lelangModel::where('id_lelang','=', $request->id_lelang)->first(),
-            'hargabarang' => $lelang -> harga_akhir,
+            'hargabarang' => $request -> harga_akhir,
             'tgl_transaksi' => Carbon::now(),
             'pembayaran' => 'belum',
         ]);
@@ -90,8 +102,21 @@ class TransaksiController extends Controller
      */
     public function show($id)
     {
-        $detail = TransaksiModel::where('id',$id)->first();
+        $detail = TransaksiModel::where('id_transaksi',$id)->first();
         return Response()->json($detail);
+    }
+    public function selectjoin($id)
+    {
+        $data = TransaksiModel::where('id_transaksi', '=', $id)->first();
+        $data = DB::table('transaksi')
+        ->join('lelang', 'lelang.id_lelang', '=', 'transaksi.id_lelang')
+        ->join('masyarakat', 'masyarakat.id_masyarakat', '=', 'transaksi.id_masyarakat')
+        ->join('barang', 'barang.id_barang', '=', 'transaksi.id_barang')
+        ->select('transaksi.*', 'lelang.harga_akhir', 'masyarakat.nama_masyarakat', 'barang.nama_barang')
+        ->where('transaksi.id_transaksi', '=', $id)
+        ->first();
+
+        return response()->json($data);
     }
 
     /**
@@ -130,7 +155,7 @@ class TransaksiController extends Controller
             return response()->json($data);
         }
 
-        $update=TransaksiModel::where('id',$id)->update([
+        $update=TransaksiModel::where('id_transaksi',$id)->update([
             'id_lelang' => $request -> id_lelang,
             'id_petugas' => $request -> id_petugas,
             'id_barang' => $request -> id_barang,
@@ -150,6 +175,23 @@ class TransaksiController extends Controller
         return Response()->json($data);
     }
 
+    public function status(Request $req, $id)
+    {
+        $validator = Validator::make($req -> all(), [
+            'pembayaran' => 'required'
+        ]);
+
+        if($validator -> fails()) {
+            return response()->json($validator->errors());
+        }
+
+        $transaksi = TransaksiModel::where('id_transaksi', '=', $id)->first();
+        $transaksi -> pembayaran = $req -> pembayaran;
+        $transaksi -> save();
+
+        return response() -> json(['message' => 'Status berhasil diubah']);
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -158,7 +200,7 @@ class TransaksiController extends Controller
      */
     public function destroy($id)
     {
-        $delete = TransaksiModel::where('id',$id)->delete();
+        $delete = TransaksiModel::where('id_transaksi',$id)->delete();
         
         if($delete){
             $data['status']=true;
@@ -167,5 +209,29 @@ class TransaksiController extends Controller
             $data['status']=false;
             $data['message']=['error'=>["Gagal"]];
         }
+    }
+
+    public function report(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'tahun' => 'required',
+            'bulan' => 'required'
+        ]);
+
+        if($validator->fails())
+        {
+            return response()->json($validator->errors());
+        }
+
+        $tahun = $request->tahun;
+        $bulan = $request->bulan;
+
+        $data = DB::table('transaksi')->join('masyarakat', 'transaksi.id_masyarakat','=','masyarakat.id_masyarakat')
+                ->select('transaksi.id_transaksi','transaksi.tgl_transaksi','transaksi.hargabarang','masyarakat.nama')
+                ->whereYear('tgl_transaksi', '=', $tahun)
+                ->whereMonth('tgl_order', '=', $bulan)
+                ->get();
+
+    return response()->json($data);
     }
 }

@@ -24,7 +24,7 @@ class CreateLelangTable extends Migration
             $table->timestamps();
 
             $table->foreign('id_barang')->references('id_barang')->on('barang');
-            $table->foreign('id_petugas')->references('id_petugas')->on('petugas');
+            $table->foreign('id_petugas')->references('id')->on('users');
             $table->foreign('id_masyarakat')->references('id_masyarakat')->on('masyarakat');
         });
     }
