@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\hlelangModel;
 use App\Models\lelangModel;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class HlelangController extends Controller
 {
@@ -18,6 +19,41 @@ class HlelangController extends Controller
     {
         $dt = hlelangModel::get();
         return response()->json($dt);
+    }
+
+    public function getAll()
+    {
+        $data = DB::table('history_lelang')
+                ->join('masyarakat','history_lelang.id_masyarakat','=','masyarakat.id_masyarakat')
+                ->join('barang','history_lelang.id_barang','=','barang.id_barang')
+                ->join('lelang','history_lelang.id_lelang','=','lelang.id_lelang')
+                ->select('history_lelang.*','masyarakat.nama_masyarakat')
+                ->get();
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    public function getId($id)
+    {
+        $data = DB::table('history_lelang')
+                ->join('masyarakat','history_lelang.id_masyarakat','=','masyarakat.id_masyarakat')
+                ->join('barang','history_lelang.id_barang','=','barang.id_barang')
+                ->join('lelang','history_lelang.id_lelang','=','lelang.id_lelang')
+                ->select('history_lelang.*','masyarakat.nama_masyarakat')
+                ->where('history_lelang.id_lelang', '=', $id)
+                ->get();
+
+        return response()->json($data);
+    }
+
+    public function maxPenawaran($id)
+    {
+        $data = DB::table('history_lelang')
+                ->select('history_lelang.*')
+                ->where('history_lelang.id_lelang','=',$id)
+                ->max('history_lelang.penawaran_harga');
+                
+        return response()->json($data);
     }
 
     /**
@@ -59,10 +95,10 @@ class HlelangController extends Controller
         ]);
 
         if($create){
-            $data['status']=true;
+            $data['success']=true;
             $data['message']="Sukses";
         }else{
-            $data['status']=false;
+            $data['success']=false;
             $data['message']="Gagal";
         }
         return Response()->json($data);

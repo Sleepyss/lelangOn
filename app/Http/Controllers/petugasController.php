@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\petugasModel;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class petugasController extends Controller
 {
@@ -14,6 +15,22 @@ class petugasController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
+    {
+        $dt = petugasModel::get();
+        return response()->json($dt);
+    }
+
+    public function maxID($id)
+    {
+        $data = DB::table('petugas')
+                ->select('petugas.*')
+                ->max('id_petugas');
+                
+        return response()->json($data);
+    }
+
+
+    public function getId()
     {
         $dt = petugasModel::get();
         return response()->json($dt);
@@ -39,9 +56,9 @@ class petugasController extends Controller
     {
         $validator = Validator::make($request->all(),[
             'nama_petugas' => 'required',
-            'username' => 'required',
-            'password' => 'required',
-            'level' => 'required',
+            'tlp_petugas' => 'required',
+            'alamat' => 'required',
+            'jenis_kelamin' => 'required'
         ]);
         
         if($validator->fails()){
@@ -52,9 +69,9 @@ class petugasController extends Controller
 
         $create=petugasModel::create([
             'nama_petugas' => $request -> nama_petugas,
-            'username' => $request -> username,
-            'password' => $request -> password,
-            'level' => $request -> level,  
+            'tlp_petugas' => $request -> tlp_petugas,
+            'alamat' => $request -> alamat,
+            'jenis_kelamin' => $request -> jenis_kelamin,
         ]);
 
         if($create){
@@ -75,7 +92,7 @@ class petugasController extends Controller
      */
     public function show($id)
     {
-        $detail = petugasModel::where('id',$id)->first();
+        $detail = petugasModel::where('id_petugas',$id)->first();
         return Response()->json($detail);
     }
 
@@ -101,9 +118,9 @@ class petugasController extends Controller
     {
         $validator = Validator::make($request->all(),[
             'nama_petugas' => 'required',
-            'username' => 'required',
-            'password' => 'required',
-            'level' => 'required',
+            'tlp_petugas' => 'required',
+            'alamat' => 'required',
+            'jenis_kelamin' => 'required'
         ]);
         
         if($validator->fails()){
@@ -112,11 +129,9 @@ class petugasController extends Controller
             return response()->json($data);
         }
 
-        $update=petugasModel::where('id',$id)->update([
-            'nama_petugas' => $request -> nama_petugas,
-            'username' => $request -> username,
-            'password' => $request -> password,
-            'level' => $request -> level,  
+        $update=petugasModel::where('id_petugas',$id)->update([
+            'tlp_petugas' => $request -> tlp_petugas,
+            'alamat' => $request -> alamat,
         ]);
 
         if($update){
@@ -137,7 +152,7 @@ class petugasController extends Controller
      */
     public function destroy($id)
     {
-        $delete = petugasModel::where('id',$id)->delete();
+        $delete = petugasModel::where('id_petugas',$id)->delete();
         
         if($delete){
             $data['status']=true;

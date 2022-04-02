@@ -10,6 +10,6 @@ class masyarakatModel extends Model
     protected $table = 'masyarakat';
     protected $primaryKey = 'id_masyarakat';
     protected $fillable = [
-        'nama_masyarakat','user_masyarakat','password_masyarakat','tlp_masyarakat','alamat_masyarakat'
+        'nama_masyarakat','tlp_masyarakat','alamat_masyarakat'
     ]; 
 }

@@ -12,12 +12,13 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
+
     public function login(Request $request)
     {
         $credentials = $request->only('username','password');
 
         try{
-            if(!    $token = JWTAuth::attempt($credentials)){
+            if(!$token = JWTAuth::attempt($credentials)){
                 return response()->json(['message' => 'Invalid username and password']);
             }
         }catch(JWTException $e)
@@ -48,19 +49,19 @@ class AuthController extends Controller
         {
             if(!$user = JWTAuth::parseToken()->authenticate())
             {
-                return response()->json([
+                return $this->response->errorResponse([
                     'success' => false,
                     'message' => 'Invalid Token'
                 ]);
             }
         }catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e){
-            return response()->json([
+            return $this->response->errorResponse([
                 'success' => false,
                 'message' => 'Token Expired'
             ]);
         }catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e)
         {
-            return response()->json([
+            return $this->response->errorResponse([
                 'success' => false,
                 'message' => 'Invalid Token'
             ]);

@@ -162,10 +162,10 @@ class barangController extends Controller
         $hapus = barangModel::where('id_barang',$id)->delete();
         
         if($hapus){
-            $data['status']=true;
+            $data['success']=true;
             $data['message']="Sukses";
         }else{
-            $data['status']=false;
+            $data['success']=false;
             $data['message']=['error'=>["Gagal"]];
         }
         return Response()->json($data);

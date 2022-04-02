@@ -26,43 +26,66 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('user/',[userController::class,'index']);
-
-
 Route::post('login',[AuthController::class,'login']);
-Route::post('logout',[AuthController::class,'logout']);
-Route::post('getuser',[AuthController::class,'getUser']);
-Route::get('login/check',[AuthController::class,'loginCheck']);
+Route::post('user/add',[userController::class,'store']);
+Route::post('user/adds/',[userController::class,'storeMasyarakat']);
+Route::post('masyarakat/store',[masyarakatController::class,'store']);
 
 
-Route::post('transaksi/store',[TransaksiController::class,'store']);
-Route::get('transaksi',[TransaksiController::class,'join']);
-Route::get('transaksi/{id}',[TransaksiController::class,'selectjoin']);
-Route::put('transaksi/update',[TransaksiController::class,'update']);
-Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
+Route::group(['middleware' => ['jwt.verify:admin,petugas,masyarakat']], function() {
+    Route::post('logout',[AuthController::class,'logout']);
+    Route::get('getuser',[AuthController::class,'getUser']);
+    Route::get('login/check',[AuthController::class,'loginCheck']); 
+    
+    Route::get('user/',[userController::class,'index']);
+    Route::get('user/petugas',[userController::class,'onlyPetugas']);
+    Route::get('user/all',[userController::class,'getAll']);
+    Route::get('user/allid/petugas/{id}',[userController::class,'getIdPetugas']);
+    Route::get('user/allid/masyarakat/{id}',[userController::class,'getIdMasyarakat']);
+    Route::get('user/allid/petugas/',[userController::class,'getallPetugas']);
+    Route::get('user/allid/masyarakat/',[userController::class,'getallMasyarakat']);
+    Route::get('user/show/{id}',[userController::class,'show']);
 
-Route::get('barang',[barangController::class,'index']);
-Route::get('barang/{id}',[barangController::class,'show']);
 
-Route::get('hlelang',[HlelangController::class,'index']);
-Route::get('hlelang/{id}',[HlelangController::class,'show']);
+    Route::get('transaksi',[TransaksiController::class,'join']);
+    Route::get('transaksi/joinonly/{id}',[TransaksiController::class,'joinonly']);
+    
+    Route::get('transaksi/{id}',[TransaksiController::class,'selectjoin']);
+    Route::delete('transaksi/delete',[TransaksiController::class,'destroy']);
 
-Route::get('masyarakat',[masyarakatController::class,'index']);
-Route::get('masyarakat/{id}',[masyarakatController::class,'show']);
+    Route::get('barang',[barangController::class,'index']);
+    Route::get('barang/{id}',[barangController::class,'show']);
 
-Route::get('lelang',[lelangController::class,'index']);
-Route::get('lelang/{id}',[lelangController::class,'show']);
+    Route::get('hlelang',[HlelangController::class,'index']);
+    Route::get('hlelang/all',[HlelangController::class,'getAll']);
+    Route::get('hlelang/{id}',[HlelangController::class,'show']);
+    Route::get('hlelang/id/{id}',[HlelangController::class,'getId']);
+    Route::get('hlelang/max/{id}',[HlelangController::class,'maxPenawaran']);
+
+    Route::get('masyarakat',[masyarakatController::class,'index']);
+    Route::get('masyarakat/{id}',[masyarakatController::class,'show']);
+    Route::get('masyarakat/maxid/{id}',[masyarakatController::class,'maxID']);
+    
+    Route::get('petugas/',[petugasController::class,'index']);
+    Route::get('petugas/{id}',[petugasController::class,'show']);
+    Route::get('petugas/maxid/{id}',[petugasController::class,'maxID']);
+
+    Route::get('lelang',[lelangController::class,'index']);
+    Route::get('lelang/available',[lelangController::class,'available']);
+    Route::get('lelang/{id}',[lelangController::class,'show']);
+    Route::put('lelang/update/hargamasyarakat/{id}',[lelangController::class,'updateHargaMasyarakat']);
+});
 
 Route::group(['middleware' => ['jwt.verify:admin,masyarakat']], function()
 {
     //ROUTE KHUSUS ADMIN DAN MASYARAKAT
-    Route::post('user/add',[userController::class,'store']);
 
-    Route::post('masyarakat/store',[masyarakatController::class,'store']);
     Route::put('masyarakat/update',[masyarakatController::class,'update']);
     Route::delete('masyarakat/delete',[masyarakatController::class,'destroy']);
 
-    
+    Route::delete('user/delete/{id}',[userController::class,'destroy']);
+    Route::put('user/update/petugas/{id}',[userController::class,'updatePetugas']);
+    Route::put('user/update/masyarakat/{id}',[userController::class,'updateMasyarakat']);
 
     /* List user, password & level
 
@@ -80,6 +103,9 @@ Route::group(['middleware' => ['jwt.verify:admin,petugas']], function()
     Route::post('barang/store',[barangController::class,'store']);
     Route::put('barang/update/{id}',[barangController::class,'update']);
     Route::delete('barang/delete/{id}',[barangController::class,'destroy']);
+
+    Route::post('/report',[TransaksiController::class,'report']);
+
 });
 
 Route::group(['middleware' => ['jwt.verify:masyarakat']], function()
@@ -94,14 +120,23 @@ Route::group(['middleware' => ['jwt.verify:petugas']], function()
 {
     //ROUTE KHUSUS PETUGAS
     Route::post('lelang/store',[lelangController::class,'store']);
-Route::put('lelang/update/{id}',[lelangController::class,'update']);
+    Route::put('lelang/status/{id}',[lelangController::class,'changeStatus']);
+    Route::put('lelang/update/{id}',[lelangController::class,'update']);
     Route::delete('lelang/delete/{id}',[lelangController::class,'destroy']);
+
+    Route::post('transaksi/store',[TransaksiController::class,'store']);
+    Route::put('transaksi/status/{id}',[TransaksiController::class,'status']);
+    Route::put('transaksi/update',[TransaksiController::class,'update']);
+    Route::post('transaksi/status/{id}',[TransaksiController::class,'status']);
+
+
 });
 
 Route::group(['middleware' => ['jwt.verify:admin']], function()
 {
-    //ROUTE KHUSUS ADMIN
-    Route::get('user/show/{id}',[userController::class,'show']);
-    Route::put('user/update/{id}',[userController::class,'update']);
-    Route::delete('user/delete/{id}',[userController::class,'destroy']);
+    //ROUTE KHUSUS ADMIM
+
+    Route::post('petugas/store',[petugasController::class,'store']);
+    Route::put('petugas/update/{id}',[petugasController::class,'update']);
+    Route::delete('petugas/delete/{id}',[petugasController::class,'destroy']);
 });

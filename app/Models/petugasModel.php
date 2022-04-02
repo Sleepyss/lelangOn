@@ -10,6 +10,6 @@ class petugasModel extends Model
     protected $table = 'petugas';
     protected $primaryKey = 'id_petugas'; 
     protected $fillable = [
-        'nama_petugas','username','password','level'
+        'nama_petugas','tlp_petugas','alamat','jenis_kelamin'
     ];
 }

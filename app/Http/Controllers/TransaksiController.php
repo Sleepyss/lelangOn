@@ -33,10 +33,25 @@ class TransaksiController extends Controller
     public function join()
     {
         $data = DB::table('transaksi')
-        ->join('lelang', 'lelang.id_lelang', '=', 'transaksi.id_lelang')
-        ->join('masyarakat', 'masyarakat.id_masyarakat', '=', 'transaksi.id_masyarakat')
-        ->join('barang', 'barang.id_barang', '=', 'transaksi.id_barang')
-        ->select('transaksi.*', 'lelang.harga_akhir', 'masyarakat.nama_masyarakat', 'barang.nama_barang')
+        ->join('lelang', 'transaksi.id_lelang', '=', 'lelang.id_lelang' )
+        ->join('masyarakat', 'transaksi.id_masyarakat', '=',  'masyarakat.id_masyarakat')
+        ->join('barang', 'transaksi.id_barang', '=', 'barang.id_barang' )
+        ->join('petugas', 'transaksi.id_petugas', '=', 'petugas.id_petugas' )
+        ->select('transaksi.*', 'lelang.harga_akhir', 'lelang.tgl_lelang', 'masyarakat.nama_masyarakat', 'barang.nama_barang', 'petugas.nama_petugas')
+        ->get();
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    public function joinonly($id)
+    {
+        $data = DB::table('transaksi')
+        ->join('lelang', 'transaksi.id_lelang', '=', 'lelang.id_lelang' )
+        ->join('masyarakat', 'transaksi.id_masyarakat', '=',  'masyarakat.id_masyarakat')
+        ->join('barang', 'transaksi.id_barang', '=', 'barang.id_barang' )
+        ->join('petugas', 'transaksi.id_petugas', '=', 'petugas.id_petugas' )
+        ->select('transaksi.*', 'lelang.harga_akhir', 'lelang.tgl_lelang', 'masyarakat.nama_masyarakat','masyarakat.id_masyarakat', 'barang.nama_barang', 'petugas.nama_petugas')
+        ->where('transaksi.id_masyarakat','=', $id)
         ->get();
 
         return response()->json(['success' => true, 'data' => $data]);
@@ -62,9 +77,10 @@ class TransaksiController extends Controller
     {
         $validator = Validator::make($request->all(),[
             'id_lelang' => 'required',
+            'id_petugas' => 'required',
             'id_masyarakat' => 'required',
             'id_barang' => 'required',
-            'id_petugas' => 'required',
+            'hargabarang' => 'required',
             
         ]);
         
@@ -74,12 +90,13 @@ class TransaksiController extends Controller
             return response()->json($data);
         }
 
+
         $create=TransaksiModel::create([
             'id_lelang' => $request -> id_lelang,
             'id_petugas' => $request -> id_petugas,
-            'id_barang' => $request -> id_barang,
             'id_masyarakat' => $request -> id_masyarakat,
-            'hargabarang' => $request -> harga_akhir,
+            'id_barang' => $request -> id_barang,
+            'hargabarang' => $request -> hargabarang,
             'tgl_transaksi' => Carbon::now(),
             'pembayaran' => 'belum',
         ]);
@@ -112,7 +129,8 @@ class TransaksiController extends Controller
         ->join('lelang', 'lelang.id_lelang', '=', 'transaksi.id_lelang')
         ->join('masyarakat', 'masyarakat.id_masyarakat', '=', 'transaksi.id_masyarakat')
         ->join('barang', 'barang.id_barang', '=', 'transaksi.id_barang')
-        ->select('transaksi.*', 'lelang.harga_akhir', 'masyarakat.nama_masyarakat', 'barang.nama_barang')
+        ->join('petugas', 'petugas.id_petugas', '=', 'transaksi.id_petugas')
+        ->select('transaksi.*', 'lelang.harga_akhir', 'lelang.tgl_lelang', 'masyarakat.nama_masyarakat', 'barang.nama_barang', 'barang.deskripsi', 'petugas.nama_petugas')
         ->where('transaksi.id_transaksi', '=', $id)
         ->first();
 
@@ -140,12 +158,7 @@ class TransaksiController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(),[
-            'id_lelang' => 'required',
-            'id_petugas' => 'required',
-            'id_barang' => 'required',
-            'id_masyarakat' => 'required',
             'hargabarang' => 'required',
-            'tgl_transaksi' => 'required',
             'pembayaran' => 'required'
         ]);
         
@@ -175,18 +188,11 @@ class TransaksiController extends Controller
         return Response()->json($data);
     }
 
-    public function status(Request $req, $id)
+    public function status($id)
     {
-        $validator = Validator::make($req -> all(), [
-            'pembayaran' => 'required'
-        ]);
-
-        if($validator -> fails()) {
-            return response()->json($validator->errors());
-        }
 
         $transaksi = TransaksiModel::where('id_transaksi', '=', $id)->first();
-        $transaksi -> pembayaran = $req -> pembayaran;
+        $transaksi -> pembayaran = 'sudah';
         $transaksi -> save();
 
         return response() -> json(['message' => 'Status berhasil diubah']);
@@ -203,11 +209,15 @@ class TransaksiController extends Controller
         $delete = TransaksiModel::where('id_transaksi',$id)->delete();
         
         if($delete){
-            $data['status']=true;
-            $data['message']="Sukses";
+            return response()->json([
+                'success' => true,
+                'message' => 'Data transaksi berhasil dihapus'
+            ]);
         }else{
-            $data['status']=false;
-            $data['message']=['error'=>["Gagal"]];
+            return response()->json([
+                'success' => false,
+                'message' => 'Data transaksi gagal dihapus'
+            ]);
         }
     }
 
@@ -226,10 +236,13 @@ class TransaksiController extends Controller
         $tahun = $request->tahun;
         $bulan = $request->bulan;
 
-        $data = DB::table('transaksi')->join('masyarakat', 'transaksi.id_masyarakat','=','masyarakat.id_masyarakat')
-                ->select('transaksi.id_transaksi','transaksi.tgl_transaksi','transaksi.hargabarang','masyarakat.nama')
+        $data = DB::table('transaksi')
+                ->join('masyarakat', 'transaksi.id_masyarakat','=','masyarakat.id_masyarakat')
+                ->join('petugas', 'transaksi.id_petugas','=','petugas.id_petugas')
+                ->join('barang', 'barang.id_barang', '=', 'transaksi.id_barang')
+                ->select('transaksi.*','masyarakat.nama_masyarakat','petugas.nama_petugas','barang.nama_barang')
                 ->whereYear('tgl_transaksi', '=', $tahun)
-                ->whereMonth('tgl_order', '=', $bulan)
+                ->whereMonth('tgl_transaksi', '=', $bulan)
                 ->get();
 
     return response()->json($data);

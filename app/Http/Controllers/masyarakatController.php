@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\masyarakatModel;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class masyarakatController extends Controller
 {
@@ -17,6 +18,15 @@ class masyarakatController extends Controller
     {
         $dt = masyarakatModel::get();
         return response()->json($dt);
+    }
+
+    public function maxID($id)
+    {
+        $data = DB::table('masyarakat')
+                ->select('masyarakat.*')
+                ->max('id_masyarakat');
+                
+        return response()->json($data);
     }
 
     /**
@@ -40,8 +50,6 @@ class masyarakatController extends Controller
         $validator = Validator::make($request->all(),
         [
             'nama_masyarakat' => 'required',
-            'user_masyarakat' => 'required',
-            'password_masyarakat' => 'required',
             'tlp_masyarakat' => 'required',
             'alamat_masyarakat' => 'required',
         ]);
@@ -54,8 +62,6 @@ class masyarakatController extends Controller
 
         $create=masyarakatModel::create([
             'nama_masyarakat' => $request -> nama_masyarakat,
-            'user_masyarakat' => $request -> user_masyarakat,
-            'password_masyarakat' => $request -> password_masyarakat,
             'tlp_masyarakat' => $request -> tlp_masyarakat,
             'alamat_masyarakat' => $request -> alamat_masyarakat
         ]);
@@ -104,9 +110,6 @@ class masyarakatController extends Controller
     {
         $validator = Validator::make($request->all(),
         [
-            'nama_masyarakat' => 'required',
-            'user_masyarakat' => 'required',
-            'password_masyarakat' => 'required',
             'tlp_masyarakat' => 'required',
             'alamat_masyarakat' => 'required',
         ]);
@@ -117,10 +120,7 @@ class masyarakatController extends Controller
             return response()->json($data);
         }
 
-        $update=masyarakatModel::where('id', $id)->update([
-            'nama_masyarakat' => $req -> nama_masyarakat,
-            'user_masyarakat' => $req -> user_masyarakat,
-            'password_masyarakat' => $req -> password_masyarakat,
+        $update=masyarakatModel::where('id_masyarakat', $id)->update([
             'tlp_masyarakat' => $req -> tlp_masyarakat,
             'alamat_masyarakat' => $req -> alamat_masyarakat
         ]);
